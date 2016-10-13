@@ -9,22 +9,30 @@
 import UIKit
 import RealmSwift
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UISearchBarDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    
     
     // Realmインスタンスを取得する
+
     let realm = try! Realm()  // ←追加
     
     // DB内のタスクが格納されるリスト。
     // 日付近い順\順でソート：降順
     // 以降内容をアップデートするとリスト内は自動的に更新される。
-    let taskArray = try! Realm().objects(Task).sorted("date", ascending: false)   // ←追加
-
+    var taskArray = try! Realm().objects(Task).sorted("date", ascending: false)   // ←追加
+    var searchKey:String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        searchBar.delegate = self
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -32,7 +40,20 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        searchKey = searchText
+        if 0 < searchKey.characters.count {
+            let result = try! Realm().objects(Task).filter("category = '\(searchKey)'", false)
+            if 0 < result.count  {
+                taskArray = result
+                tableView.reloadData()
+            }
+        } else {
+            taskArray = try! Realm().objects(Task).sorted("date", ascending: false)
+            tableView.reloadData()
+        }
+    }
+    
     // MARK: UITableViewDataSourceプロトコルのメソッド
     // データの数（＝セルの数）を返すメソッド
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -42,17 +63,18 @@ class ViewController: UIViewController {
     // 各セルの内容を返すメソッド
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         // 再利用可能な cell を得る
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
         
-        // Cellに値を設定する.
-        let task = taskArray[indexPath.row]
-        cell.textLabel?.text = task.title
+            let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
         
-        let formatter = NSDateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+            // Cellに値を設定する.
+            let task = taskArray[indexPath.row]
+        cell.textLabel?.text = "\(task.title)   Category:\(task.category)"
         
-        let dateString:String = formatter.stringFromDate(task.date)
-        cell.detailTextLabel?.text = dateString
+            let formatter = NSDateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        
+            let dateString:String = formatter.stringFromDate(task.date)
+            cell.detailTextLabel?.text = dateString
         
         return cell
     }

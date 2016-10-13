@@ -21,6 +21,10 @@ class Task: Object {
     /// 日時
     dynamic var date = NSDate()
     
+    ///Category
+    
+    dynamic var category:String = ""
+    
     /**
      id をプライマリーキーとして設定
      */
