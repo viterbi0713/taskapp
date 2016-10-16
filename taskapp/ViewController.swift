@@ -42,12 +42,22 @@ class ViewController: UIViewController, UISearchBarDelegate {
 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         searchKey = searchText
+        print("\(searchKey)")
+        print("Key =\(searchKey.characters.count)")
+        
         if 0 < searchKey.characters.count {
-            let result = try! Realm().objects(Task).filter("category = '\(searchKey)'", false)
+        
+            let result = try! Realm().objects(Task).filter("category = '\(searchKey)'")
+            //let result = try! Realm().objects(Task).filter("category BEGINWITH 'S'", false)
+            print("Result count \(result.count)")
             if 0 < result.count  {
                 taskArray = result
                 tableView.reloadData()
+            } else if 0 == result.count {
+                print("\(taskArray)")
+                tableView.reloadData()
             }
+        
         } else {
             taskArray = try! Realm().objects(Task).sorted("date", ascending: false)
             tableView.reloadData()
