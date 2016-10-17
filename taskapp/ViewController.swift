@@ -15,8 +15,7 @@ class ViewController: UIViewController, UISearchBarDelegate {
 
     
     @IBOutlet weak var searchBar: UISearchBar!
-    
-    
+
     
     // Realmインスタンスを取得する
 
@@ -38,25 +37,25 @@ class ViewController: UIViewController, UISearchBarDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    
     }
 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         searchKey = searchText
-        print("\(searchKey)")
-        print("Key =\(searchKey.characters.count)")
+        //print("Key = \(searchKey)")
+        //print("Key_Char_Count=\(searchKey.characters.count)")
         
         if 0 < searchKey.characters.count {
         
-            let result = try! Realm().objects(Task).filter("category = '\(searchKey)'")
-            //let result = try! Realm().objects(Task).filter("category BEGINWITH 'S'", false)
-            print("Result count \(result.count)")
-            if 0 < result.count  {
+            //let result = try! Realm().objects(Task).filter("category = '\(searchKey)'")
+            let result = try! Realm().objects(Task).filter("category BEGINSWITH[c] '\(searchKey)'")
+
+            //print("Result count \(result.count)")
+            
                 taskArray = result
                 tableView.reloadData()
-            } else if 0 == result.count {
-                print("\(taskArray)")
-                tableView.reloadData()
-            }
+
+            //}
         
         } else {
             taskArray = try! Realm().objects(Task).sorted("date", ascending: false)
@@ -78,7 +77,7 @@ class ViewController: UIViewController, UISearchBarDelegate {
         
             // Cellに値を設定する.
             let task = taskArray[indexPath.row]
-        cell.textLabel?.text = "\(task.title)   Category:\(task.category)"
+            cell.textLabel?.text = "\(task.title)   Category:\(task.category)"
         
             let formatter = NSDateFormatter()
             formatter.dateFormat = "yyyy-MM-dd HH:mm"
